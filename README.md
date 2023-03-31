@@ -8,4 +8,4 @@ For this assignment, I have written code that trains a text generation model on 
 
 To run the code, first install the requirements by running the following command in terminal: `python3 -m pip install -r requirements.txt`
 
-Then run the RNN model by navigating to the "src" folder and running this command: `python3 -m rnn_save.py`
+Then save the RNN model by navigating to the "src" folder and running this command: `python3 -m rnn_save.py`
