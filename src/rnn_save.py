@@ -6,6 +6,7 @@ np.random.seed(42)
 
 # keras module for building LSTM 
 import tensorflow as tf
+import keras
 tf.random.set_seed(42)
 import tensorflow.keras.utils as ku 
 from tensorflow.keras.models import Sequential
@@ -94,9 +95,43 @@ def generate_text(seed_text, next_words, model, max_sequence_len):
 # note: don't push the data to github
 data_dir = os.path.join("..","..","..","431868", "news_data/")
 
-
+# append only the headlines of the articles
 all_headlines = []
 for filename in os.listdir(data_dir):
-    if 'Comments' in filename:
-        comment_df = pd.read_csv(data_dir + filename)
-        all_headlines.extend(list(comment_df["headline"].values)) # just remove this?
+    if 'Articles' in filename:
+        article_df = pd.read_csv(data_dir + filename)
+        all_headlines.extend(list(article_df["headline"].values))
+
+corpus = [clean_text(x) for x in all_headlines]
+
+#### TOKENIZE
+
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(corpus)
+total_words = len(tokenizer.word_index) + 1
+
+# use previously defined function to turn text into sequence of tokens
+inp_sequences = get_sequence_of_tokens(tokenizer, corpus)
+
+# pad input sequences so they are all the same length
+predictors, label, max_sequence_len = generate_padded_sequences(inp_sequences)
+
+#### CREATE MODEL
+
+# use previously defined function to initialize model 
+# inputs are length of sequences and total size of the vocab
+model = create_model(max_sequence_len, total_words)
+
+# train model (this step takes up most of the time)
+history = model.fit(predictors, 
+                    label, 
+                    epochs=50, # this can be adjusted as needed
+                    batch_size=128, 
+                    verbose=1)
+
+#### SAVE MODEL
+
+# save model into the "models" folder
+tf.keras.saving.save_model(
+    model, "models", overwrite=True, save_format="tf"
+)
