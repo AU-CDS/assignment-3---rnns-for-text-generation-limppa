@@ -1,24 +1,25 @@
 # data processing tools
-import string, os 
+import os
+import string 
 import pandas as pd
 import numpy as np
 np.random.seed(42)
 
 # keras module for building LSTM 
 import tensorflow as tf
-import keras
 tf.random.set_seed(42)
-import tensorflow.keras.utils as ku 
-from tensorflow.keras.models import Sequential
+from tensorflow import keras
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
 
-# surpress warnings
+# surpress warnings to reduce unnecessary output
 import warnings
 warnings.filterwarnings("ignore")
 warnings.simplefilter(action='ignore', category=FutureWarning)
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 #### HELPER FUNCTIONS
 
@@ -46,7 +47,7 @@ def generate_padded_sequences(input_sequences):
                                             padding='pre'))
 
     predictors, label = input_sequences[:,:-1],input_sequences[:,-1]
-    label = ku.to_categorical(label, 
+    label = to_categorical(label, 
                             num_classes=total_words)
     return predictors, label, max_sequence_len
 
@@ -92,8 +93,9 @@ def generate_text(seed_text, next_words, model, max_sequence_len):
 
 #### LOAD DATA
 
-# note: don't push the data to github
-data_dir = os.path.join("..","..","..","431868", "news_data/")
+# Determine the absolute path to the 'news_data' directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+data_dir = os.path.join(script_dir, "..", "in", "news_data/")
 
 # append only the headlines of the articles
 all_headlines = []
@@ -118,20 +120,21 @@ predictors, label, max_sequence_len = generate_padded_sequences(inp_sequences)
 
 #### CREATE MODEL
 
-# use previously defined function to initialize model 
+# use previously defined function to initialize model
 # inputs are length of sequences and total size of the vocab
 model = create_model(max_sequence_len, total_words)
 
 # train model (this step takes up most of the time)
-history = model.fit(predictors, 
-                    label, 
-                    epochs=50, # this can be adjusted as needed
-                    batch_size=128, 
+history = model.fit(predictors,
+                    label,
+                    epochs=20,  # this can be adjusted as needed
+                    batch_size=128,
                     verbose=1)
 
 #### SAVE MODEL
-
+# Create the "models" directory if it doesn't exist
+os.makedirs("model", exist_ok=True)
 # save model into the "models" folder
-tf.keras.saving.save_model(
-    model, "models", overwrite=True, save_format="tf"
+tf.keras.models.save_model(
+    model, os.path.join("model"), overwrite=True, save_format="tf"
 )
