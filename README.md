@@ -13,3 +13,5 @@ Then train save the RNN model by navigating to the root folder and running this 
 
 Finally, you can load the model and have it generate continuation of any text you input. For example, generate a text that starts with "China" and continues for 6 words by running this command: `python src/rnn_load.py "China" 6`
 *Note: you can swap "China" and 6 for any words (in quotes) you want followed by any number.
+
+Need to download the news data and place into "in" folder
