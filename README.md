@@ -45,5 +45,3 @@ Finally, you can load the model and have it generate continuation of any text yo
 
 ## Results
 Due to limited computational resources, the results obtained from this assignment were more of a proof-of-concept rather than high-quality outputs. The model was trained for 20 epochs, but you are encouraged to experiment with higher values to achieve better results.
-
-Feel free to explore and modify the code to further analyze the results or improve the text generation.
